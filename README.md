@@ -6,7 +6,7 @@
 
 
 ## What is it all about?
-Ai agents are the buzzing words in crypto industries right now. So, made an ai agent that can give you information about Linea and Consensys just by giving it a prompt in natural language. THis is different from other ai agents like ChatGPT because these are curated to serve to Linea only. 
+Ai agents are the buzzing words in crypto industries right now. So, made an ai agent that can give you information about Linea and Consensys just by giving it a prompt in natural language. This is different from other ai agents like ChatGPT because these are curated to serve to Linea only. 
 
 
 - Future Scope
