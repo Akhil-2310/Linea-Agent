@@ -1,5 +1,32 @@
 // src/components/ChatInterface.jsx
 import React, { useState } from "react";
+import axios from "axios";
+import { createAppKit } from "@reown/appkit/react";
+import { EthersAdapter } from "@reown/appkit-adapter-ethers";
+import { mainnet, linea } from "@reown/appkit/networks";
+import { ethers } from "ethers";
+import { useAppKitProvider } from "@reown/appkit/react";
+import { BrowserProvider } from "ethers";
+
+// Initialize AppKit
+const projectId = "54c238d52f1218087ae00073282addb8";
+const networks = [mainnet, linea];
+const metadata = {
+  name: "My Website",
+  description: "My Website description",
+  url: "https://mywebsite.com",
+  icons: ["https://avatars.mywebsite.com/"],
+};
+
+createAppKit({
+  adapters: [new EthersAdapter()],
+  networks,
+  metadata,
+  projectId,
+  features: {
+    analytics: true,
+  },
+});
 
 function ChatInterface1() {
   const [conversations, setConversations] = useState([
@@ -8,7 +35,9 @@ function ChatInterface1() {
   const [currentConversation, setCurrentConversation] = useState(1);
   const [input, setInput] = useState("");
 
-  const handleSubmit = (e) => {
+  const { walletProvider } = useAppKitProvider("eip155");
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (input.trim()) {
       const newMessage = { text: input, user: true };
@@ -20,17 +49,71 @@ function ChatInterface1() {
         )
       );
 
-      // Simulate AI response
-      setTimeout(() => {
-        const aiResponse = { text: `You said: ${input}`, user: false };
+      try {
+        const url = "https://api.brianknows.org/api/v0/agent/transaction";
+        const apiKey = "brian_BzdRxFtTa1fdLtisQ"; // Replace with your API key
+
+        const body = {
+          prompt: "send 1 usdc to 0x6cc717de21A631e02A425d7fe6138706Bc784197",
+          address: " 0x6cc717de21A631e02A425d7fe6138706Bc784197",
+          chainId: "59144",
+        };
+
+        const response = await axios.post(url, body, {
+          headers: {
+            "x-brian-api-key": apiKey,
+            "Content-Type": "application/json",
+          },
+        });
+
+        const data = response.data;
+
+        if (data.result && data.result[0].data && data.result[0].data.steps) {
+          const transactionStep = data.result[0].data.steps[0];
+             const ethersProvider = new BrowserProvider(walletProvider);
+             const signer = await ethersProvider.getSigner();
+
+
+          const txResponse = await signer.sendTransaction({
+            to: transactionStep.to,
+            value: ethers.BigNumber?.from(transactionStep.value || "0"),
+            data: transactionStep.data,
+            gasLimit: ethers.BigNumber.from(
+              transactionStep.gasLimit || "100000"
+            ),
+          });
+
+          const receipt = await txResponse.wait();
+          const aiResponse = {
+            text: `Transaction confirmed: ${receipt.transactionHash}`,
+            user: false,
+          };
+
+          setConversations((convs) =>
+            convs.map((conv) =>
+              conv.id === currentConversation
+                ? { ...conv, messages: [...conv.messages, aiResponse] }
+                : conv
+            )
+          );
+        } else {
+          throw new Error("No valid transaction steps found.");
+        }
+      } catch (error) {
+        console.error("Transaction failed:", error);
+
+        if (error.response) {
+          console.error("Response Data:", error.response.data);
+        }
+        const errorMessage = { text: `Error: ${error.message}`, user: false };
         setConversations((convs) =>
           convs.map((conv) =>
             conv.id === currentConversation
-              ? { ...conv, messages: [...conv.messages, aiResponse] }
+              ? { ...conv, messages: [...conv.messages, errorMessage] }
               : conv
           )
         );
-      }, 1000);
+      }
 
       setInput("");
     }
@@ -55,7 +138,6 @@ function ChatInterface1() {
 
   return (
     <div className="flex h-screen bg-gray-900 text-white">
-      {/* Sidebar */}
       <div className="w-64 bg-gray-800 p-4 overflow-y-auto">
         <button
           onClick={startNewChat}
@@ -79,8 +161,7 @@ function ChatInterface1() {
           ))}
         </div>
       </div>
-
-      {/* Chat Area */}
+      <appkit-button />
       <div className="flex-1 flex flex-col">
         <div className="flex-1 overflow-y-auto p-4">
           {currentMessages.map((message, index) => (
