@@ -54,7 +54,7 @@ function ChatInterface1() {
         const apiKey = "brian_BzdRxFtTa1fdLtisQ"; // Replace with your API key
 
         const body = {
-          prompt: "send 1 usdc to 0x6cc717de21A631e02A425d7fe6138706Bc784197",
+          prompt: input,
           address: " 0x6cc717de21A631e02A425d7fe6138706Bc784197",
           chainId: "59144",
         };
