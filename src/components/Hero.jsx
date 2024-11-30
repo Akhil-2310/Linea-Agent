@@ -14,7 +14,7 @@ function Hero() {
           Want to do transactions, get info about what consensys does or want to write smart contracts? Do all this in natural language and just one click !!
         </p>
         <Link
-          to="/chat"
+          to="/transactions"
           className="bg-blue-500 hover:bg-blue-600 px-6 py-3 rounded-full text-lg font-semibold"
         >
           Get Started
