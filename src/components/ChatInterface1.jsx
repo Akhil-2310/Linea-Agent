@@ -1,45 +1,17 @@
-// src/components/ChatInterface.jsx
 import React, { useState } from "react";
-import axios from "axios";
-import { createAppKit } from "@reown/appkit/react";
-import { EthersAdapter } from "@reown/appkit-adapter-ethers";
-import { mainnet, linea } from "@reown/appkit/networks";
 import { ethers } from "ethers";
-import { useAppKitProvider } from "@reown/appkit/react";
-import { BrowserProvider } from "ethers";
 
-// Initialize AppKit
-const projectId = "54c238d52f1218087ae00073282addb8";
-const networks = [mainnet, linea];
-const metadata = {
-  name: "My Website",
-  description: "My Website description",
-  url: "https://mywebsite.com",
-  icons: ["https://avatars.mywebsite.com/"],
-};
-
-createAppKit({
-  adapters: [new EthersAdapter()],
-  networks,
-  metadata,
-  projectId,
-  features: {
-    analytics: true,
-  },
-});
-
-function ChatInterface1() {
+function ChatInterface() {
   const [conversations, setConversations] = useState([
     { id: 1, title: "First Chat", messages: [] },
   ]);
   const [currentConversation, setCurrentConversation] = useState(1);
   const [input, setInput] = useState("");
-
-  const { walletProvider } = useAppKitProvider("eip155");
+  const [address, setAddress] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (input.trim()) {
+    if (input.trim() && address.trim()) {
       const newMessage = { text: input, user: true };
       setConversations((convs) =>
         convs.map((conv) =>
@@ -55,56 +27,64 @@ function ChatInterface1() {
 
         const body = {
           prompt: input,
-          address: " 0x6cc717de21A631e02A425d7fe6138706Bc784197",
-          chainId: "59144",
+          address: address,
         };
 
-        const response = await axios.post(url, body, {
+        const response = await fetch(url, {
+          method: "POST",
           headers: {
             "x-brian-api-key": apiKey,
             "Content-Type": "application/json",
           },
+          body: JSON.stringify(body),
         });
 
-        const data = response.data;
+        const data = await response.json();
 
         if (data.result && data.result[0].data && data.result[0].data.steps) {
-          const transactionStep = data.result[0].data.steps[0];
-             const ethersProvider = new BrowserProvider(walletProvider);
-             const signer = await ethersProvider.getSigner();
+          const steps = data.result[0].data.steps;
 
+          if (!window.ethereum) {
+            throw new Error("MetaMask is not installed.");
+          }
 
-          const txResponse = await signer.sendTransaction({
-            to: transactionStep.to,
-            value: ethers.BigNumber?.from(transactionStep.value || "0"),
-            data: transactionStep.data,
-            gasLimit: ethers.BigNumber.from(
-              transactionStep.gasLimit || "100000"
-            ),
-          });
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const signer = provider.getSigner();
 
-          const receipt = await txResponse.wait();
-          const aiResponse = {
-            text: `Transaction confirmed: ${receipt.transactionHash}`,
-            user: false,
-          };
+          for (const step of steps) {
+            const txResponse = (await signer).sendTransaction({
+              to: step.to,
+              value: step.value,
+              gasLimit: step.gasLimit,
+              data: step.data,
+            });
 
-          setConversations((convs) =>
-            convs.map((conv) =>
-              conv.id === currentConversation
-                ? { ...conv, messages: [...conv.messages, aiResponse] }
-                : conv
-            )
-          );
+            //const receipt = await txResponse.wait();
+
+            // Append transaction success message
+            // const aiResponse = {
+            //   text: `Transaction confirmed: ${transactionHash}`,
+            //   user: false,
+            // };
+
+            const aiResponse = "loading..";
+
+            setTimeout(() => {
+              console.log("transaction successful");
+            }, 7000);
+            setConversations((convs) =>
+              convs.map((conv) =>
+                conv.id === currentConversation
+                  ? { ...conv, messages: [...conv.messages, aiResponse] }
+                  : conv
+              )
+            );
+          }
         } else {
           throw new Error("No valid transaction steps found.");
         }
       } catch (error) {
         console.error("Transaction failed:", error);
-
-        if (error.response) {
-          console.error("Response Data:", error.response.data);
-        }
         const errorMessage = { text: `Error: ${error.message}`, user: false };
         setConversations((convs) =>
           convs.map((conv) =>
@@ -138,6 +118,7 @@ function ChatInterface1() {
 
   return (
     <div className="flex h-screen bg-gray-900 text-white">
+      {/* Sidebar for Chat List */}
       <div className="w-64 bg-gray-800 p-4 overflow-y-auto">
         <button
           onClick={startNewChat}
@@ -161,7 +142,7 @@ function ChatInterface1() {
           ))}
         </div>
       </div>
-      <appkit-button />
+      {/* Chat Window */}
       <div className="flex-1 flex flex-col">
         <div className="flex-1 overflow-y-auto p-4">
           {currentMessages.map((message, index) => (
@@ -179,14 +160,22 @@ function ChatInterface1() {
             </div>
           ))}
         </div>
+        {/* Input Form */}
         <form onSubmit={handleSubmit} className="p-4 border-t border-gray-700">
           <div className="flex">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              className="flex-1 bg-gray-700 p-2 rounded-l-lg focus:outline-none"
+              className="flex-1 bg-gray-700 p-2 rounded-l-lg focus:outline-none m-2"
               placeholder="Type your message..."
+            />
+            <input
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="flex-1 bg-gray-700 p-2 rounded-l-lg focus:outline-none"
+              placeholder="Address"
             />
             <button
               type="submit"
@@ -201,4 +190,4 @@ function ChatInterface1() {
   );
 }
 
-export default ChatInterface1;
+export default ChatInterface;
