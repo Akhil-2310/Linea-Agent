@@ -32,8 +32,10 @@ This is a feature that is specially designed to give information about everythin
 - Get Smart Contract Code
 You can get smart contract code just by giving it a prompt.
 
-##Transaction ID's
+## Transaction ID's
+
 [Send](https://lineascan.build/tx/0x43673140c6a89e2ba84ecabe471ad00080dfe40d09a4d96548bd984fb47fdcaa)
+
 [Bridge](https://lineascan.build/tx/0xfebf0d0b1e20981877e92a19f042d0d86af1c2d4f377cbc8e77759d25ed25d81)
 
 
