@@ -10,6 +10,9 @@
 ## Hackquest Link
 [Hackquest](https://www.hackquest.io/en/hackathon/projects/Linea-Oct-Nov-Dev-Cook-off-Linea-AI-Agent)
 
+## Presentation
+[PPT](https://www.canva.com/design/DAGYJMnKaX8/2grVKzQxv0q8bSPYnyuk6Q/edit)
+
 
 ## What is it all about?
 ### Overview
