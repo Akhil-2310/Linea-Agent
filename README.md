@@ -22,6 +22,7 @@ One year ago, when I was just getting started into Web3, after learning the conc
 ### AI Agent for Linea
 
 - Do Transactions by giving a prompt (Transfer/Bridge/Swap)
+
 This AI Agent for Linea is where you can do transactions by giving a prompt
 For example - send 0.002 eth from linea to akhilnanavati.eth
 Just by writing this, the transaction will be done.
@@ -30,9 +31,11 @@ You can easily bridge your tokens by giving a prompt.
 For example - bridge 0.002 eth from linea to any chain (base/polygon/etc.)
 
 - Get Info on Linea/Consensys
+
 This is a feature that is specially designed to give information about everything related to Linea and Consensys. Here, you can get information about what is Linea, what does it do, etc. This is possible as a special knowledge box is curated specifically to give information on this.
 
 - Get Smart Contract Code
+
 You can get smart contract code just by giving it a prompt.
 
 ## Transaction ID's
